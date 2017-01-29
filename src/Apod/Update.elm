@@ -2,6 +2,7 @@ module Apod.Update exposing (update, getPicOfDay)
 
 import Apod.Model exposing (PicOfDay, MediaType(..), decodePicOfDay)
 import Apod.Messages exposing (Msg(..))
+import Apod.DateHelper exposing (formatToYMD)
 import Http
 
 
@@ -28,7 +29,7 @@ update msg model =
             ( model, Cmd.none )
 
         GetPicFromDay date ->
-            ( model, getPicOfDay date )
+            ( model, getPicOfDay (formatToYMD date) )
 
 
 getPicOfDay : String -> Cmd Msg
