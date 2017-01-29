@@ -5,8 +5,7 @@ import Html.Attributes exposing (src, type_, class, style)
 import Html.Events exposing (onClick, on)
 import Apod.Model exposing (PicOfDay, MediaType(..))
 import Apod.Messages exposing (Msg(..))
-import Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD)
-import Date
+import Apod.DateHelper exposing (dayBefore, dayAfter)
 
 
 view : PicOfDay -> Html Msg
@@ -22,7 +21,7 @@ view model =
             [ div [ xs12md6 ] [ mediaFigure model ]
             , div [ xs12md6 ]
                 [ h1 [] [ text model.title ]
-                , h3 [] [ text (formatToYMD model.date) ]
+                , h3 [] [ text model.date ]
                 , p [] [ text model.explanation ]
                 , prevButton model.date
                 , nextButton model.date
@@ -30,17 +29,17 @@ view model =
             ]
 
 
-nextButton : Date.Date -> Html Msg
+nextButton : String -> Html Msg
 nextButton =
     newPicButton "next" dayAfter
 
 
-prevButton : Date.Date -> Html Msg
+prevButton : String -> Html Msg
 prevButton =
     newPicButton "prev" dayBefore
 
 
-newPicButton : String -> (Date.Date -> Date.Date) -> Date.Date -> Html Msg
+newPicButton : String -> (String -> String) -> String -> Html Msg
 newPicButton buttonText transformDate date =
     button
         [ type_ "button"

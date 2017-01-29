@@ -1,4 +1,4 @@
-module Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD, dateFromString)
+module Apod.DateHelper exposing (dayBefore, dayAfter)
 
 import Date
 import Date.Extra.Duration as DateDuration
@@ -7,19 +7,19 @@ import Date.Extra.Format as Format exposing (format, formatUtc, isoMsecOffsetFor
 import Time
 
 
-dayBefore : Date.Date -> Date.Date
+dayBefore : String -> String
 dayBefore =
     shiftDay -1
 
 
-dayAfter : Date.Date -> Date.Date
+dayAfter : String -> String
 dayAfter =
     shiftDay 1
 
 
-shiftDay : Int -> Date.Date -> Date.Date
-shiftDay dayQuantity date =
-    addDay dayQuantity date
+shiftDay : Int -> String -> String
+shiftDay quantity dateString =
+    formatToYMD (addDay quantity (dateFromString dateString))
 
 
 addDay : Int -> Date.Date -> Date.Date
@@ -37,9 +37,7 @@ middayTimezone =
 
 
 {-| TODO: should apodDateLimit be here?
-    should it be anywhere at all?
-
-    the APOD began in 1995-06-16
+    the APOD dates back to 1995-06-16
     1995-06-16T12:00:00 = 803304000000 in UTC
     see https://apod.nasa.gov/apod/archivepix.html
 -}
@@ -59,8 +57,6 @@ formatToYMD =
 
 
 {-|
-    TODO: don't do this and treat errors accordingly
-
     if we cannot convert the given string to a Date.Date
     we fallback to the api earliest available data
 -}
