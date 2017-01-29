@@ -26,3 +26,4 @@ You will also see any lint errors in the console.
 - [ ] Error view 
 - [ ] Loading view
 - [ ] Handle Maybe values concisely in the view
+- [ ] Hook up a Date-Picker
