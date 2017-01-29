@@ -7,6 +7,11 @@ import Http
 
 {-| get your apiKey at https://api.nasa.gov/index.html#apply-for-an-api-key
     TODO: is there any way to use a config file for this?
+
+    DEMO_KEY limits:
+    Hourly Limit: 30 requests per IP address per hour
+    Daily Limit: 50 requests per IP address per day
+    see: https://api.nasa.gov/api.html#demo_key-rate-limits
 -}
 apiKey : String
 apiKey =
