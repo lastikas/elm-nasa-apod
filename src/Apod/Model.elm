@@ -26,8 +26,8 @@ emptyPic =
 
 
 decodeMediaType : String -> Decode.Decoder MediaType
-decodeMediaType media_type =
-    if media_type == "image" then
+decodeMediaType mediaType =
+    if mediaType == "image" then
         Decode.succeed Image
     else
         Decode.succeed Video

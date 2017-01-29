@@ -58,11 +58,11 @@ mediaFigure model =
 
 
 media : MediaType -> String -> Html Msg
-media media_type media_url =
-    case media_type of
+media mediaType mediaUrl =
+    case mediaType of
         Image ->
             img
-                [ src media_url
+                [ src mediaUrl
                 , class "img-responsive center-block img-thumbnail"
                 ]
                 []
@@ -76,7 +76,7 @@ media media_type media_url =
                     class "embed-responsive-item"
             in
                 div [ responsiveEmbed ]
-                    [ iframe [ responsiveItem, src media_url ] [] ]
+                    [ iframe [ responsiveItem, src mediaUrl ] [] ]
 
 
 {-| TODO: redo captionCopyright - this is bad code

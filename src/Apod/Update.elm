@@ -5,17 +5,17 @@ import Apod.Messages exposing (Msg(..))
 import Http
 
 
-{-| get your api_key at https://api.nasa.gov/index.html#apply-for-an-api-key
+{-| get your apiKey at https://api.nasa.gov/index.html#apply-for-an-api-key
     TODO: is there any way to use a config file for this?
 -}
-api_key : String
-api_key =
+apiKey : String
+apiKey =
     "DEMO_KEY"
 
 
-apod_endpoint : String
-apod_endpoint =
-    "https://api.nasa.gov/planetary/apod?api_key=" ++ api_key ++ "&date="
+apodEndpoint : String
+apodEndpoint =
+    "https://api.nasa.gov/planetary/apod?api_key=" ++ apiKey ++ "&date="
 
 
 update : Msg -> PicOfDay -> ( PicOfDay, Cmd Msg )
@@ -33,4 +33,4 @@ update msg model =
 
 getPicOfDay : String -> Cmd Msg
 getPicOfDay date =
-    Http.send NewPicOfDay (Http.get (apod_endpoint ++ date) decodePicOfDay)
+    Http.send NewPicOfDay (Http.get (apodEndpoint ++ date) decodePicOfDay)
