@@ -22,60 +22,70 @@ view : Model -> Html Msg
 view model =
     case model.status of
         Loading ->
-            loadingView
+            loadingView model.loadingImageSrc
 
         Loaded ->
             case model.picOfDay of
                 Nothing ->
-                    errorView
+                    errorView model.errorImageSrc
 
                 Just picOfDay ->
                     picView picOfDay
 
         Error ->
-            errorView
+            errorView model.errorImageSrc
 
 
-{-| TODO: create loading view
+{-| TODO: abstract views
+    this views are getting repetitive
+
+    time to abstract away
 -}
-loadingView : Html Msg
-loadingView =
-    div [] [ text "loading..." ]
-
-
-{-| TODO: create error view
--}
-errorView : Html Msg
-errorView =
-    div []
-        [ button
-            [ type_ "button"
-            , class "btn btn-default"
-            , onClick Reload
+loadingView : String -> Html Msg
+loadingView loadingImageSrc =
+    div [ row ]
+        [ div [ xs12md6 ]
+            [ figure [ style [ ( "margin-top", "20px" ) ] ]
+                [ responsiveImg loadingImageSrc ]
             ]
-            [ text "Reload" ]
+        , div [ xs12md6 ]
+            [ h1_ "Looking for start-stuff"
+            , p_ "Traversing the cosmos in search of beauty"
+            , p_ "You hang in there. We'll be right back"
+            , p_ "The universe has 13.82 billion years. You can spare a few secondsm i'm sure"
+            ]
+        ]
+
+
+errorView : String -> Html Msg
+errorView errorImageSrc =
+    div [ row ]
+        [ div [ xs12md6 ]
+            [ figure [ style [ ( "margin-top", "20px" ) ] ]
+                [ responsiveImg errorImageSrc ]
+            ]
+        , div [ xs12md6 ]
+            [ h1_ "The fabric of spacetime ripped apart!"
+            , p_ "It seems like the data we were expecting fell into a blackhole and is now trapped beyond the event horizon, inaccessible for all eternity."
+            , p_ "You can try time-travelling to the current day, this way avoiding the collision with the blackhole before it even happened (yay)"
+            , p_ "Give the Reload button bellow a try and see if that works."
+            , button_ "Reload" (onClick Reload)
+            ]
         ]
 
 
 picView : PicOfDay -> Html Msg
 picView model =
-    let
-        xs12md6 =
-            class "col-xs-12 col-md-6"
-
-        row =
-            class "row"
-    in
-        div [ row ]
-            [ div [ xs12md6 ] [ mediaFigure model ]
-            , div [ xs12md6 ]
-                [ h1 [] [ text model.title ]
-                , h3 [] [ text (formatToYMD model.date) ]
-                , p [] [ text model.explanation ]
-                , prevButton model.date
-                , nextButton model.date
-                ]
+    div [ row ]
+        [ div [ xs12md6 ] [ mediaFigure model ]
+        , div [ xs12md6 ]
+            [ h1_ model.title
+            , h3_ (formatToYMD model.date)
+            , p_ model.explanation
+            , prevButton model.date
+            , nextButton model.date
             ]
+        ]
 
 
 nextButton : Date.Date -> Html Msg
@@ -88,16 +98,10 @@ prevButton =
     newPicButton "prev" dayBefore
 
 
-{-| TODO: could we abstract this in a way that Reload could benefit?
--}
 newPicButton : String -> (Date.Date -> Date.Date) -> Date.Date -> Html Msg
 newPicButton buttonText transformDate date =
-    button
-        [ type_ "button"
-        , class "btn btn-default"
-        , onClick (GetPicFromDay (transformDate date))
-        ]
-        [ text buttonText ]
+    button_ buttonText
+        (onClick (GetPicFromDay (transformDate date)))
 
 
 mediaFigure : PicOfDay -> Html Msg
@@ -127,19 +131,65 @@ media : MediaType -> String -> Html Msg
 media mediaType mediaUrl =
     case mediaType of
         Image ->
-            img
-                [ src mediaUrl
-                , class "img-responsive center-block img-thumbnail"
-                ]
-                []
+            responsiveImg mediaUrl
 
         Video ->
-            let
-                responsiveEmbed =
-                    class "embed-responsive embed-responsive-16by9"
+            responsiveEmbed16by9 mediaUrl
 
-                responsiveItem =
-                    class "embed-responsive-item"
-            in
-                div [ responsiveEmbed ]
-                    [ iframe [ responsiveItem, src mediaUrl ] [] ]
+
+h1_ : String -> Html msg
+h1_ textToShow =
+    h1 [] [ text textToShow ]
+
+
+h3_ : String -> Html msg
+h3_ textToShow =
+    h3 [] [ text textToShow ]
+
+
+p_ : String -> Html msg
+p_ textToShow =
+    p [] [ text textToShow ]
+
+
+button_ : String -> Attribute msg -> Html msg
+button_ textToShow onClickHandler =
+    button
+        (onClickHandler
+            :: [ type_ "button"
+               , class "btn btn-default"
+               ]
+        )
+        [ text textToShow ]
+
+
+responsiveImg : String -> Html msg
+responsiveImg imgSrc =
+    img
+        [ src imgSrc
+        , class "img-responsive center-block img-thumbnail"
+        ]
+        []
+
+
+responsiveEmbed16by9 : String -> Html msg
+responsiveEmbed16by9 embedSrc =
+    let
+        responsiveEmbed =
+            class "embed-responsive embed-responsive-16by9"
+
+        responsiveItem =
+            class "embed-responsive-item"
+    in
+        div [ responsiveEmbed ]
+            [ iframe [ responsiveItem, src embedSrc ] [] ]
+
+
+xs12md6 : Attribute msg
+xs12md6 =
+    class "col-xs-12 col-md-6"
+
+
+row : Attribute msg
+row =
+    class "row"

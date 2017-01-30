@@ -20,9 +20,6 @@ The page will reload if you make edits.
 You will also see any lint errors in the console.
 
 ###### Todo
-
-- [x] Better model (get rid of emptyPic)
+- [ ] Abstract views (code is getting repetitive)
 - [ ] Handle Http errors
-- [ ] Error view 
-- [ ] Loading view
 - [ ] Hook up a Date-Picker

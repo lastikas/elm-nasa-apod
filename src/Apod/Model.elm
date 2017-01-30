@@ -26,6 +26,8 @@ type alias PicOfDay =
 type alias Model =
     { picOfDay : Maybe PicOfDay
     , status : Status
+    , loadingImageSrc : String
+    , errorImageSrc : String
     }
 
 
