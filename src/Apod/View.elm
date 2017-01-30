@@ -52,10 +52,25 @@ newPicButton buttonText transformDate date =
 
 mediaFigure : PicOfDay -> Html Msg
 mediaFigure model =
-    figure [ style [ ( "margin-top", "20px" ) ] ]
-        [ media model.media_type model.url
-        , captionCopyright model.copyright
-        ]
+    let
+        copyrightLabel =
+            "copyright:"
+
+        publicDomain =
+            "public domain"
+
+        figureStyle =
+            [ ( "margin-top", "20px" ) ]
+    in
+        figure [ style figureStyle ]
+            [ media model.media_type model.url
+            , figcaption []
+                [ text
+                    (copyrightLabel
+                        ++ (Maybe.withDefault publicDomain model.copyright)
+                    )
+                ]
+            ]
 
 
 media : MediaType -> String -> Html Msg
@@ -78,19 +93,3 @@ media mediaType mediaUrl =
             in
                 div [ responsiveEmbed ]
                     [ iframe [ responsiveItem, src mediaUrl ] [] ]
-
-
-{-| TODO: redo captionCopyright - this is bad code
--}
-captionCopyright : Maybe String -> Html msg
-captionCopyright copyright =
-    let
-        captionText =
-            case copyright of
-                Nothing ->
-                    ""
-
-                Just value ->
-                    " copyright: " ++ value
-    in
-        figcaption [] [ text captionText ]

@@ -6,8 +6,6 @@ import Apod.DateHelper exposing (dateFromString)
 
 
 {-| TODO: this is not a good model
-    maybe change date to Maybe Date.Date
-    so we don't have to fallback to the Apod.DateHelper.apodDateLimit
 
     maybe PicOfDay should be a Maybe PicOfDay in another model
     this way whenever we are loading a new pic or some error has occurred
