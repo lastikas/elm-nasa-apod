@@ -1,4 +1,4 @@
-module Apod.Model exposing (Model, PicOfDay, MediaType(..), decodePicOfDay)
+module Apod.Model exposing (Model, PicOfDay, MediaType(..), Status(..), decodePicOfDay)
 
 import Json.Decode as Decode
 import Date
@@ -25,13 +25,19 @@ type alias PicOfDay =
 -}
 type alias Model =
     { picOfDay : Maybe PicOfDay
-    , error : Bool
+    , status : Status
     }
 
 
 type MediaType
     = Image
     | Video
+
+
+type Status
+    = Loading
+    | Loaded
+    | Error
 
 
 decodeMediaType : String -> Decode.Decoder MediaType

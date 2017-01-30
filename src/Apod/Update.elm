@@ -1,6 +1,6 @@
 module Apod.Update exposing (update)
 
-import Apod.Model exposing (Model, MediaType(..), decodePicOfDay)
+import Apod.Model exposing (Model, MediaType(..), Status(..), decodePicOfDay)
 import Apod.Messages exposing (Msg(..))
 import Apod.DateHelper exposing (formatToYMD)
 import Http
@@ -26,30 +26,37 @@ apodEndpoint =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        NewPicOfDay (Ok picOfDay) ->
-            ( { model
+    let
+        loadPic date =
+            { model
+                | picOfDay = Nothing
+                , status = Loading
+            }
+                ! [ getPicOfDay date ]
+
+        picLoaded picOfDay =
+            { model
                 | picOfDay = Just picOfDay
-                , error = False
-              }
-            , Cmd.none
-            )
+                , status = Loaded
+            }
+                ! [ Cmd.none ]
 
-        NewPicOfDay (Err _) ->
-            ( { model
+        error =
+            { model
                 | picOfDay = Nothing
-                , error = True
-              }
-            , Cmd.none
-            )
+                , status = Error
+            }
+                ! [ Cmd.none ]
+    in
+        case msg of
+            NewPicOfDay (Ok picOfDay) ->
+                picLoaded picOfDay
 
-        GetPicFromDay date ->
-            ( { model
-                | picOfDay = Nothing
-                , error = False
-              }
-            , getPicOfDay (formatToYMD date)
-            )
+            NewPicOfDay (Err _) ->
+                error
+
+            GetPicFromDay date ->
+                loadPic (formatToYMD date)
 
 
 getPicOfDay : String -> Cmd Msg

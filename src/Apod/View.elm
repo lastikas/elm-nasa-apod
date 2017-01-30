@@ -3,7 +3,7 @@ module Apod.View exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (src, type_, class, style)
 import Html.Events exposing (onClick, on)
-import Apod.Model exposing (Model, PicOfDay, MediaType(..))
+import Apod.Model exposing (Model, PicOfDay, MediaType(..), Status(..))
 import Apod.Messages exposing (Msg(..))
 import Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD)
 import Date
@@ -11,18 +11,29 @@ import Date
 
 {-| TODO: study better ways to deal with exceptions
     not feeling good about this
+
+    the case inside Loaded is weird
+    PicOfDay as a Maybe makes sense, it won't always be there
+    but someone is gonna have to deal with it, right?
+
+    if feels like Model.status is the culprit here
 -}
 view : Model -> Html Msg
 view model =
-    if model.error == True then
-        errorView
-    else
-        case model.picOfDay of
-            Nothing ->
-                loadingView
+    case model.status of
+        Loading ->
+            loadingView
 
-            Just picOfDay ->
-                picView picOfDay
+        Loaded ->
+            case model.picOfDay of
+                Nothing ->
+                    errorView
+
+                Just picOfDay ->
+                    picView picOfDay
+
+        Error ->
+            errorView
 
 
 {-| TODO: create loading view

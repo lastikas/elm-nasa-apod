@@ -1,6 +1,6 @@
 module Main exposing (..)
 
-import Apod.Model exposing (Model)
+import Apod.Model exposing (Model, Status(..))
 import Html exposing (programWithFlags)
 import Apod.Update exposing (update)
 import Apod.View exposing (view)
@@ -21,8 +21,8 @@ main =
 
 initialModel : Model
 initialModel =
-    { error = False
-    , picOfDay = Nothing
+    { picOfDay = Nothing
+    , status = Loading
     }
 
 
