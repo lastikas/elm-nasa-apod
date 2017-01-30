@@ -58,6 +58,9 @@ update msg model =
             GetPicFromDay date ->
                 loadPic (formatToYMD date)
 
+            Reload ->
+                loadPic ""
+
 
 getPicOfDay : String -> Cmd Msg
 getPicOfDay date =

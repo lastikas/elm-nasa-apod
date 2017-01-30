@@ -8,3 +8,4 @@ import Date
 type Msg
     = NewPicOfDay (Result Http.Error PicOfDay)
     | GetPicFromDay Date.Date
+    | Reload

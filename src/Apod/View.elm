@@ -47,7 +47,14 @@ loadingView =
 -}
 errorView : Html Msg
 errorView =
-    div [] [ text "error" ]
+    div []
+        [ button
+            [ type_ "button"
+            , class "btn btn-default"
+            , onClick Reload
+            ]
+            [ text "Reload" ]
+        ]
 
 
 picView : PicOfDay -> Html Msg
@@ -81,6 +88,8 @@ prevButton =
     newPicButton "prev" dayBefore
 
 
+{-| TODO: could we abstract this in a way that Reload could benefit?
+-}
 newPicButton : String -> (Date.Date -> Date.Date) -> Date.Date -> Html Msg
 newPicButton buttonText transformDate date =
     button
