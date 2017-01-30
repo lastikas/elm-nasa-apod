@@ -21,9 +21,8 @@ You will also see any lint errors in the console.
 
 ###### Todo
 
-- [ ] Better model (get rid of emptyPic)
+- [x] Better model (get rid of emptyPic)
 - [ ] Handle Http errors
 - [ ] Error view 
 - [ ] Loading view
-- [ ] Handle Maybe values concisely in the view
 - [ ] Hook up a Date-Picker

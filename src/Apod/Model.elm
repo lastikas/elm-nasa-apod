@@ -1,15 +1,13 @@
-module Apod.Model exposing (PicOfDay, MediaType(..), emptyPic, decodePicOfDay)
+module Apod.Model exposing (Model, PicOfDay, MediaType(..), decodePicOfDay)
 
 import Json.Decode as Decode
 import Date
 import Apod.DateHelper exposing (dateFromString)
 
 
-{-| TODO: this is not a good model
-
-    maybe PicOfDay should be a Maybe PicOfDay in another model
-    this way whenever we are loading a new pic or some error has occurred
-    the view can decide what to show
+{-| TODO: date should be a Maybe Date.Date
+    DateHelper.dateFromString could fail when parsing,
+    instead of returning some crazy date the user didn't asked for
 -}
 type alias PicOfDay =
     { copyright : Maybe String
@@ -23,18 +21,17 @@ type alias PicOfDay =
     }
 
 
+{-| TODO: study other ways of dealing with errors
+-}
+type alias Model =
+    { picOfDay : Maybe PicOfDay
+    , error : Bool
+    }
+
+
 type MediaType
     = Image
     | Video
-
-
-{-| TODO: do not use emptyPic
-    this shows some bullshit data before the first update is complete
-    come up with a better model!!!
--}
-emptyPic : PicOfDay
-emptyPic =
-    PicOfDay Nothing (Date.fromTime 0) "" Nothing Image "" "" ""
 
 
 decodeMediaType : String -> Decode.Decoder MediaType

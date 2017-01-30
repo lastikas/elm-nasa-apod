@@ -1,9 +1,9 @@
 module Apod.Subscriptions exposing (subscriptions)
 
-import Apod.Model exposing (PicOfDay)
+import Apod.Model exposing (Model)
 import Apod.Messages exposing (Msg)
 
 
-subscriptions : PicOfDay -> Sub Msg
+subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none

@@ -3,14 +3,44 @@ module Apod.View exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (src, type_, class, style)
 import Html.Events exposing (onClick, on)
-import Apod.Model exposing (PicOfDay, MediaType(..))
+import Apod.Model exposing (Model, PicOfDay, MediaType(..))
 import Apod.Messages exposing (Msg(..))
 import Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD)
 import Date
 
 
-view : PicOfDay -> Html Msg
+{-| TODO: study better ways to deal with exceptions
+    not feeling good about this
+-}
+view : Model -> Html Msg
 view model =
+    if model.error == True then
+        errorView
+    else
+        case model.picOfDay of
+            Nothing ->
+                loadingView
+
+            Just picOfDay ->
+                picView picOfDay
+
+
+{-| TODO: create loading view
+-}
+loadingView : Html Msg
+loadingView =
+    div [] [ text "loading..." ]
+
+
+{-| TODO: create error view
+-}
+errorView : Html Msg
+errorView =
+    div [] [ text "error" ]
+
+
+picView : PicOfDay -> Html Msg
+picView model =
     let
         xs12md6 =
             class "col-xs-12 col-md-6"

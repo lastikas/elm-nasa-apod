@@ -1,6 +1,6 @@
-module Apod.Update exposing (update, getPicOfDay)
+module Apod.Update exposing (update)
 
-import Apod.Model exposing (PicOfDay, MediaType(..), decodePicOfDay)
+import Apod.Model exposing (Model, MediaType(..), decodePicOfDay)
 import Apod.Messages exposing (Msg(..))
 import Apod.DateHelper exposing (formatToYMD)
 import Http
@@ -24,17 +24,32 @@ apodEndpoint =
     "https://api.nasa.gov/planetary/apod?api_key=" ++ apiKey ++ "&date="
 
 
-update : Msg -> PicOfDay -> ( PicOfDay, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NewPicOfDay (Ok picOfDay) ->
-            ( picOfDay, Cmd.none )
+            ( { model
+                | picOfDay = Just picOfDay
+                , error = False
+              }
+            , Cmd.none
+            )
 
         NewPicOfDay (Err _) ->
-            ( model, Cmd.none )
+            ( { model
+                | picOfDay = Nothing
+                , error = True
+              }
+            , Cmd.none
+            )
 
         GetPicFromDay date ->
-            ( model, getPicOfDay (formatToYMD date) )
+            ( { model
+                | picOfDay = Nothing
+                , error = False
+              }
+            , getPicOfDay (formatToYMD date)
+            )
 
 
 getPicOfDay : String -> Cmd Msg
