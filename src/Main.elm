@@ -35,6 +35,10 @@ type alias Options =
     }
 
 
+{-| TODO: ok, so we don't fallback to some arbitray date
+    when dateFromString fails, but we now have this weird
+    behaviour of Reload on error
+-}
 init : Options -> ( Model, Cmd Msg )
 init options =
     let
@@ -43,5 +47,13 @@ init options =
                 | loadingImageSrc = options.loadingImageSrc
                 , errorImageSrc = options.errorImageSrc
             }
+
+        dateResult =
+            dateFromString options.initialDate
     in
-        update (GetPicFromDay (dateFromString options.initialDate)) m
+        case dateResult of
+            Ok date ->
+                update (GetPicFromDay date) m
+
+            Err error ->
+                update Reload m

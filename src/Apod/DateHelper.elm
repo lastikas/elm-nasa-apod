@@ -55,16 +55,9 @@ formatDate formatString date =
 
 formatToYMD : Date.Date -> String
 formatToYMD =
-    formatDate "%Y-%m-%-d"
+    formatDate "%Y-%m-%d"
 
 
-{-|
-    TODO: don't do this and treat errors accordingly
-
-    if we cannot convert the given string to a Date.Date
-    we fallback to the api earliest available data
--}
-dateFromString : String -> Date.Date
+dateFromString : String -> Result String Date.Date
 dateFromString dateString =
     Date.fromString (dateString ++ middayTimezone)
-        |> Result.withDefault (Date.fromTime apodDateLimit)

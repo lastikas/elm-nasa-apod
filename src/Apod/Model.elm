@@ -52,7 +52,16 @@ decodeMediaType mediaType =
 
 decodeDate : String -> Decode.Decoder Date.Date
 decodeDate dateString =
-    Decode.succeed (dateFromString dateString)
+    let
+        dateResult =
+            dateFromString dateString
+    in
+        case dateResult of
+            Ok date ->
+                Decode.succeed date
+
+            Err error ->
+                Decode.fail error
 
 
 decodePicOfDay : Decode.Decoder PicOfDay
