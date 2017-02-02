@@ -36,55 +36,61 @@ view model =
             errorView model.errorImageSrc
 
 
-{-| TODO: abstract views
-    this views are getting repetitive
-
-    time to abstract away
--}
 loadingView : String -> Html Msg
 loadingView loadingImageSrc =
-    div [ row ]
-        [ div [ xs12md6 ]
-            [ figure [ style [ ( "margin-top", "20px" ) ] ]
-                [ responsiveImg loadingImageSrc ]
-            ]
-        , div [ xs12md6 ]
+    let
+        leftColumn =
+            figure_ loadingImageSrc
+
+        rightColumn =
             [ h1_ "Looking for start-stuff"
             , p_ "Traversing the cosmos in search of beauty"
             , p_ "You hang in there. We'll be right back"
             , p_ "The universe has 13.82 billion years. You can spare a few secondsm i'm sure"
             ]
-        ]
+    in
+        twoColumnsView leftColumn rightColumn
 
 
 errorView : String -> Html Msg
 errorView errorImageSrc =
-    div [ row ]
-        [ div [ xs12md6 ]
-            [ figure [ style [ ( "margin-top", "20px" ) ] ]
-                [ responsiveImg errorImageSrc ]
-            ]
-        , div [ xs12md6 ]
+    let
+        leftColumn =
+            figure_ errorImageSrc
+
+        rightColumn =
             [ h1_ "The fabric of spacetime ripped apart!"
             , p_ "It seems like the data we were expecting fell into a blackhole and is now trapped beyond the event horizon, inaccessible for all eternity."
             , p_ "You can try time-travelling to the current day, this way avoiding the collision with the blackhole before it even happened (yay)"
             , p_ "Give the Reload button bellow a try and see if that works."
             , button_ "Reload" (onClick Reload)
             ]
-        ]
+    in
+        twoColumnsView leftColumn rightColumn
 
 
 picView : PicOfDay -> Html Msg
 picView model =
-    div [ row ]
-        [ div [ xs12md6 ] [ mediaFigure model ]
-        , div [ xs12md6 ]
+    let
+        leftColumn =
+            [ figureCaption model ]
+
+        rightColumn =
             [ h1_ model.title
             , h3_ (formatToYMD model.date)
             , p_ model.explanation
             , prevButton model.date
             , nextButton model.date
             ]
+    in
+        twoColumnsView leftColumn rightColumn
+
+
+twoColumnsView : List (Html.Html Msg) -> List (Html.Html Msg) -> Html Msg
+twoColumnsView leftColumn rightColumn =
+    div [ row ]
+        [ div [ xs12md6 ] leftColumn
+        , div [ xs12md6 ] rightColumn
         ]
 
 
@@ -104,8 +110,8 @@ newPicButton buttonText transformDate date =
         (onClick (GetPicFromDay (transformDate date)))
 
 
-mediaFigure : PicOfDay -> Html Msg
-mediaFigure model =
+figureCaption : PicOfDay -> Html Msg
+figureCaption model =
     let
         copyrightLabel =
             "copyright:"
@@ -150,6 +156,13 @@ h3_ textToShow =
 p_ : String -> Html msg
 p_ textToShow =
     p [] [ text textToShow ]
+
+
+figure_ : String -> List (Html msg)
+figure_ imageSrc =
+    [ figure [ style [ ( "margin-top", "20px" ) ] ]
+        [ responsiveImg imageSrc ]
+    ]
 
 
 button_ : String -> Attribute msg -> Html msg
