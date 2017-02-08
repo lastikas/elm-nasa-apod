@@ -1,9 +1,10 @@
 module Apod.Update exposing (update)
 
-import Apod.Model exposing (Model, MediaType(..), Status(..), decodePicOfDay)
+import Apod.Model exposing (Model, MediaType(..), decodePicOfDay)
 import Apod.Messages exposing (Msg(..))
 import Apod.DateHelper exposing (formatToYMD)
-import Http
+import WebData.Http
+import WebData exposing (WebData(..))
 
 
 {-| get your apiKey at https://api.nasa.gov/index.html#apply-for-an-api-key
@@ -27,41 +28,23 @@ apodEndpoint =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
-        loadPic date =
-            { model
-                | picOfDay = Nothing
-                , status = Loading
-            }
-                ! [ getPicOfDay date ]
-
-        picLoaded picOfDay =
-            { model
-                | picOfDay = Just picOfDay
-                , status = Loaded
-            }
-                ! [ Cmd.none ]
-
-        error =
-            { model
-                | picOfDay = Nothing
-                , status = Error
-            }
-                ! [ Cmd.none ]
+        fetch date =
+            ( { model | apod = Loading }, getApod date )
     in
         case msg of
-            NewPicOfDay (Ok picOfDay) ->
-                picLoaded picOfDay
+            FetchApod date ->
+                fetch (formatToYMD date)
 
-            NewPicOfDay (Err _) ->
-                error
-
-            GetPicFromDay date ->
-                loadPic (formatToYMD date)
+            HandleApod webData ->
+                { model | apod = webData } ! [ Cmd.none ]
 
             Reload ->
-                loadPic ""
+                fetch ""
 
 
-getPicOfDay : String -> Cmd Msg
-getPicOfDay date =
-    Http.send NewPicOfDay (Http.get (apodEndpoint ++ date) decodePicOfDay)
+getApod : String -> Cmd Msg
+getApod date =
+    WebData.Http.getWithCache
+        (apodEndpoint ++ date)
+        HandleApod
+        decodePicOfDay

@@ -3,37 +3,27 @@ module Apod.View exposing (view)
 import Html exposing (..)
 import Html.Attributes exposing (src, type_, class, style)
 import Html.Events exposing (onClick, on)
-import Apod.Model exposing (Model, PicOfDay, MediaType(..), Status(..))
+import Apod.Model exposing (Model, PicOfDay, MediaType(..))
 import Apod.Messages exposing (Msg(..))
 import Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD)
 import Date
+import WebData exposing (WebData(..))
 
 
-{-| TODO: study better ways to deal with exceptions
-    not feeling good about this
-
-    the case inside Loaded is weird
-    PicOfDay as a Maybe makes sense, it won't always be there
-    but someone is gonna have to deal with it, right?
-
-    if feels like Model.status is the culprit here
--}
 view : Model -> Html Msg
 view model =
-    case model.status of
-        Loading ->
+    case model.apod of
+        WebData.Loading ->
             loadingView model.loadingImageSrc
 
-        Loaded ->
-            case model.picOfDay of
-                Nothing ->
-                    errorView model.errorImageSrc
+        WebData.NotAsked ->
+            loadingView model.loadingImageSrc
 
-                Just picOfDay ->
-                    picView picOfDay
-
-        Error ->
+        WebData.Failure e ->
             errorView model.errorImageSrc
+
+        WebData.Success apod ->
+            picView apod
 
 
 loadingView : String -> Html Msg
@@ -107,7 +97,7 @@ prevButton =
 newPicButton : String -> (Date.Date -> Date.Date) -> Date.Date -> Html Msg
 newPicButton buttonText transformDate date =
     button_ buttonText
-        (onClick (GetPicFromDay (transformDate date)))
+        (onClick (FetchApod (transformDate date)))
 
 
 figureCaption : PicOfDay -> Html Msg

@@ -1,12 +1,14 @@
 module Main exposing (..)
 
-import Apod.Model exposing (Model, Status(..))
+import Apod.Model exposing (Model)
 import Html exposing (programWithFlags)
 import Apod.Update exposing (update)
 import Apod.View exposing (view)
 import Apod.Messages exposing (Msg(..))
 import Apod.Subscriptions exposing (subscriptions)
-import Apod.DateHelper exposing (dateFromString)
+import WebData exposing (WebData(..))
+import Date
+import Time
 
 
 main : Program Options Model Msg
@@ -21,24 +23,19 @@ main =
 
 initialModel : Model
 initialModel =
-    { picOfDay = Nothing
-    , status = Loading
+    { apod = NotAsked
     , loadingImageSrc = ""
     , errorImageSrc = ""
     }
 
 
 type alias Options =
-    { initialDate : String
+    { initialDate : Time.Time
     , loadingImageSrc : String
     , errorImageSrc : String
     }
 
 
-{-| TODO: ok, so we don't fallback to some arbitray date
-    when dateFromString fails, but we now have this weird
-    behaviour of Reload on error
--}
 init : Options -> ( Model, Cmd Msg )
 init options =
     let
@@ -48,12 +45,7 @@ init options =
                 , errorImageSrc = options.errorImageSrc
             }
 
-        dateResult =
-            dateFromString options.initialDate
+        date =
+            Date.fromTime options.initialDate
     in
-        case dateResult of
-            Ok date ->
-                update (GetPicFromDay date) m
-
-            Err error ->
-                update Reload m
+        update (FetchApod date) m

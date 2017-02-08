@@ -1,14 +1,11 @@
-module Apod.Model exposing (Model, PicOfDay, MediaType(..), Status(..), decodePicOfDay)
+module Apod.Model exposing (Model, PicOfDay, MediaType(..), decodePicOfDay)
 
 import Json.Decode as Decode
 import Date
 import Apod.DateHelper exposing (dateFromString)
+import WebData exposing (WebData(..))
 
 
-{-| TODO: date should be a Maybe Date.Date
-    DateHelper.dateFromString could fail when parsing,
-    instead of returning some crazy date the user didn't asked for
--}
 type alias PicOfDay =
     { copyright : Maybe String
     , date : Date.Date
@@ -21,11 +18,8 @@ type alias PicOfDay =
     }
 
 
-{-| TODO: study other ways of dealing with errors
--}
 type alias Model =
-    { picOfDay : Maybe PicOfDay
-    , status : Status
+    { apod : WebData PicOfDay
     , loadingImageSrc : String
     , errorImageSrc : String
     }
@@ -34,12 +28,6 @@ type alias Model =
 type MediaType
     = Image
     | Video
-
-
-type Status
-    = Loading
-    | Loaded
-    | Error
 
 
 decodeMediaType : String -> Decode.Decoder MediaType

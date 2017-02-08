@@ -1,11 +1,11 @@
 module Apod.Messages exposing (Msg(..))
 
-import Http
 import Apod.Model exposing (PicOfDay)
 import Date
+import WebData exposing (WebData(..))
 
 
 type Msg
-    = NewPicOfDay (Result Http.Error PicOfDay)
-    | GetPicFromDay Date.Date
+    = FetchApod Date.Date
+    | HandleApod (WebData PicOfDay)
     | Reload
