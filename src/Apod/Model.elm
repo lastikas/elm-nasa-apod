@@ -4,6 +4,7 @@ import Json.Decode as Decode
 import Date
 import Apod.DateHelper exposing (dateFromString)
 import WebData exposing (WebData(..))
+import DatePicker exposing (defaultSettings)
 
 
 type alias PicOfDay =
@@ -20,6 +21,10 @@ type alias PicOfDay =
 
 type alias Model =
     { apod : WebData PicOfDay
+    , datepicker : DatePicker.DatePicker
+    , date : Date.Date
+    , today : Date.Date
+    , sidebarOpen : Bool
     , loadingImageSrc : String
     , errorImageSrc : String
     }

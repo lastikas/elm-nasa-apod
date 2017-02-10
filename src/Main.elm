@@ -9,6 +9,7 @@ import Apod.Subscriptions exposing (subscriptions)
 import WebData exposing (WebData(..))
 import Date
 import Time
+import Apod.DateHelper exposing (initDatePicker)
 
 
 main : Program Options Model Msg
@@ -21,14 +22,6 @@ main =
         }
 
 
-initialModel : Model
-initialModel =
-    { apod = NotAsked
-    , loadingImageSrc = ""
-    , errorImageSrc = ""
-    }
-
-
 type alias Options =
     { initialDate : Time.Time
     , loadingImageSrc : String
@@ -39,13 +32,13 @@ type alias Options =
 init : Options -> ( Model, Cmd Msg )
 init options =
     let
-        m =
-            { initialModel
-                | loadingImageSrc = options.loadingImageSrc
-                , errorImageSrc = options.errorImageSrc
-            }
-
-        date =
+        initialDate =
             Date.fromTime options.initialDate
+
+        ( datePicker, datePickerFx ) =
+            initDatePicker (Just initialDate) initialDate
+
+        initialModel =
+            Model NotAsked datePicker initialDate initialDate False options.loadingImageSrc options.errorImageSrc
     in
-        update (FetchApod date) m
+        update (FetchApod initialDate) initialModel

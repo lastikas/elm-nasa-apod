@@ -1,10 +1,11 @@
-module Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD, dateFromString)
+module Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD, dateFromString, initDatePicker, isDisabled)
 
 import Date
 import Date.Extra.Duration as DateDuration
 import Date.Extra.Config.Config_en_au exposing (config)
 import Date.Extra.Format as Format exposing (format, formatUtc, isoMsecOffsetFormat)
-import Time
+import Date.Extra.Compare as DateCompare exposing (Compare2(..))
+import DatePicker exposing (defaultSettings)
 
 
 dayBefore : Date.Date -> Date.Date
@@ -36,16 +37,15 @@ middayTimezone =
     "T12:00:00"
 
 
-{-| TODO: should apodDateLimit be here?
-    should it be anywhere at all?
-
-    the APOD began in 1995-06-16
-    1995-06-16T12:00:00 = 803304000000 in UTC
+{-| the APOD began in 1995-06-16
     see https://apod.nasa.gov/apod/archivepix.html
+
+    from experience I've learned that the API fails
+    for dates before 1995-09-22
 -}
-apodDateLimit : Time.Time
+apodDateLimit : Date.Date
 apodDateLimit =
-    803304000000
+    Date.fromTime 811727999000
 
 
 formatDate : String -> Date.Date -> String
@@ -61,3 +61,18 @@ formatToYMD =
 dateFromString : String -> Result String Date.Date
 dateFromString dateString =
     Date.fromString (dateString ++ middayTimezone)
+
+
+isDisabled : Date.Date -> Date.Date -> Bool
+isDisabled todayDate datePickerDate =
+    (DateCompare.is Before datePickerDate apodDateLimit)
+        || (DateCompare.is After datePickerDate todayDate)
+
+
+initDatePicker : Maybe Date.Date -> Date.Date -> ( DatePicker.DatePicker, Cmd DatePicker.Msg )
+initDatePicker initialDate today =
+    DatePicker.init
+        { defaultSettings
+            | pickedDate = initialDate
+            , isDisabled = (isDisabled today)
+        }

@@ -1,36 +1,68 @@
 module Apod.View exposing (view)
 
 import Html exposing (..)
-import Html.Attributes exposing (src, type_, class, style)
-import Html.Events exposing (onClick, on)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Apod.Model exposing (Model, PicOfDay, MediaType(..))
 import Apod.Messages exposing (Msg(..))
-import Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD)
-import Date
 import WebData exposing (WebData(..))
+import DatePicker
+import Apod.DateHelper exposing (dayBefore, dayAfter, formatToYMD, isDisabled)
+import Date
+
+
+attrData : String -> String -> Attribute msg
+attrData name value =
+    attribute ("data-" ++ name) value
 
 
 view : Model -> Html Msg
 view model =
-    case model.apod of
-        WebData.Loading ->
-            loadingView model.loadingImageSrc
+    div [ class "page-container" ]
+        [ navbarHeader
+        , div [ class "container" ]
+            [ div
+                [ class ("row row-offcanvas row-offcanvas-left" ++ (sidebarClass model))
+                ]
+                ([ div
+                    [ class "col-xs-6 col-sm-3 sidebar-offcanvas"
+                    , id "sidebar"
+                    ]
+                    [ datePickerView model.datepicker ]
+                 ]
+                    ++ (imageTextView model)
+                )
+            ]
+        ]
 
-        WebData.NotAsked ->
-            loadingView model.loadingImageSrc
 
-        WebData.Failure e ->
-            errorView model.errorImageSrc
+imageTextView : Model -> List (Html Msg)
+imageTextView model =
+    let
+        ( imageView, descriptionView ) =
+            case model.apod of
+                Loading ->
+                    loadingView model
 
-        WebData.Success apod ->
-            picView apod
+                NotAsked ->
+                    loadingView model
+
+                WebData.Failure e ->
+                    errorView model
+
+                WebData.Success apod ->
+                    picView model apod
+    in
+        [ div [ class "col-xs-12 col-sm-9" ]
+            (imageView ++ descriptionView)
+        ]
 
 
-loadingView : String -> Html Msg
-loadingView loadingImageSrc =
+loadingView : Model -> ( List (Html.Html Msg), List (Html.Html Msg) )
+loadingView model =
     let
         leftColumn =
-            figure_ loadingImageSrc
+            figure_ model.loadingImageSrc
 
         rightColumn =
             [ h1_ "Looking for start-stuff"
@@ -39,65 +71,92 @@ loadingView loadingImageSrc =
             , p_ "The universe has 13.82 billion years. You can spare a few secondsm i'm sure"
             ]
     in
-        twoColumnsView leftColumn rightColumn
+        ( leftColumn, rightColumn )
 
 
-errorView : String -> Html Msg
-errorView errorImageSrc =
+errorView : Model -> ( List (Html.Html Msg), List (Html.Html Msg) )
+errorView model =
     let
         leftColumn =
-            figure_ errorImageSrc
+            figure_ model.errorImageSrc
 
         rightColumn =
             [ h1_ "The fabric of spacetime ripped apart!"
+            , h3_ (formatToYMD model.date)
             , p_ "It seems like the data we were expecting fell into a blackhole and is now trapped beyond the event horizon, inaccessible for all eternity."
-            , p_ "You can try time-travelling to the current day, this way avoiding the collision with the blackhole before it even happened (yay)"
             , p_ "Give the Reload button bellow a try and see if that works."
-            , button_ "Reload" (onClick Reload)
+            , p_ "If the error persists, please select another date or try again later"
+            , reloadButton
+            , div [ class "controls" ]
+                [ prevButton model.date model.today
+                , nextButton model.date model.today
+                ]
             ]
     in
-        twoColumnsView leftColumn rightColumn
+        ( leftColumn, rightColumn )
 
 
-picView : PicOfDay -> Html Msg
-picView model =
+picView : Model -> PicOfDay -> ( List (Html.Html Msg), List (Html.Html Msg) )
+picView model apod =
     let
         leftColumn =
-            [ figureCaption model ]
+            [ figureCaption apod ]
 
         rightColumn =
-            [ h1_ model.title
+            [ h1_ apod.title
             , h3_ (formatToYMD model.date)
-            , p_ model.explanation
-            , prevButton model.date
-            , nextButton model.date
+            , p_ apod.explanation
+            , hd_button apod.hdurl
+            , div [ class "controls" ]
+                [ prevButton model.date model.today
+                , nextButton model.date model.today
+                ]
             ]
     in
-        twoColumnsView leftColumn rightColumn
+        ( leftColumn, rightColumn )
 
 
-twoColumnsView : List (Html.Html Msg) -> List (Html.Html Msg) -> Html Msg
-twoColumnsView leftColumn rightColumn =
-    div [ row ]
-        [ div [ xs12md6 ] leftColumn
-        , div [ xs12md6 ] rightColumn
+datePickerView : DatePicker.DatePicker -> Html Msg
+datePickerView datepicker =
+    div [ class "date-picker-holder" ]
+        [ h3_ "Pick a Date"
+        , DatePicker.view datepicker
+            |> Html.map ToDatePicker
         ]
 
 
-nextButton : Date.Date -> Html Msg
-nextButton =
-    newPicButton "next" dayAfter
+navbarHeader : Html Msg
+navbarHeader =
+    div [ class "navbar navbar-default navbar-fixed-top", (attribute "role" "navigation") ]
+        [ div [ class "container" ]
+            [ div [ class "navbar-header" ]
+                [ button
+                    [ type_ "button"
+                    , class "navbar-toggle"
+                    , (attrData "toggle" "offcanvas")
+                    , (attrData "target" ".sidebar-nav")
+                    , onClick ToggleSidebar
+                    ]
+                    [ span [ class "icon-bar" ]
+                        []
+                    , span [ class "icon-bar" ]
+                        []
+                    , span [ class "icon-bar" ]
+                        []
+                    ]
+                , a [ class "navbar-brand", href "#" ]
+                    [ text "Elm-Apod" ]
+                ]
+            ]
+        ]
 
 
-prevButton : Date.Date -> Html Msg
-prevButton =
-    newPicButton "prev" dayBefore
-
-
-newPicButton : String -> (Date.Date -> Date.Date) -> Date.Date -> Html Msg
-newPicButton buttonText transformDate date =
-    button_ buttonText
-        (onClick (FetchApod (transformDate date)))
+sidebarClass : Model -> String
+sidebarClass model =
+    if model.sidebarOpen == True then
+        " active"
+    else
+        ""
 
 
 figureCaption : PicOfDay -> Html Msg
@@ -133,6 +192,11 @@ media mediaType mediaUrl =
             responsiveEmbed16by9 mediaUrl
 
 
+br_ : Html msg
+br_ =
+    br [] []
+
+
 h1_ : String -> Html msg
 h1_ textToShow =
     h1 [] [ text textToShow ]
@@ -155,15 +219,89 @@ figure_ imageSrc =
     ]
 
 
-button_ : String -> Attribute msg -> Html msg
-button_ textToShow onClickHandler =
+hd_button : Maybe String -> Html Msg
+hd_button hdurl =
+    case hdurl of
+        Nothing ->
+            text ""
+
+        Just url ->
+            a
+                [ class "btn btn-primary"
+                , target "_blank"
+                , href url
+                ]
+                [ span [ class "glyphicon glyphicon-picture" ] []
+                , text " see hi-res"
+                ]
+
+
+reloadButton : Html Msg
+reloadButton =
+    clickableTextIconButton "Reload" (IconLeft "glyphicon glyphicon-refresh") (onClick Reload) False
+
+
+nextButton : Date.Date -> Date.Date -> Html Msg
+nextButton date today =
+    let
+        tomorrow =
+            dayAfter date
+    in
+        clickableTextIconButton
+            "next"
+            (IconRight "glyphicon glyphicon-chevron-right")
+            (onClick (FetchApod tomorrow))
+            (isDisabled today tomorrow)
+
+
+prevButton : Date.Date -> Date.Date -> Html Msg
+prevButton date today =
+    let
+        yesterday =
+            dayBefore date
+    in
+        clickableTextIconButton
+            "prev"
+            (IconLeft "glyphicon glyphicon-chevron-left")
+            (onClick (FetchApod yesterday))
+            (isDisabled today yesterday)
+
+
+button_ : String -> Maybe String -> Attribute msg -> Html msg
+button_ textToShow customClass onClickHandler =
     button
         (onClickHandler
             :: [ type_ "button"
-               , class "btn btn-default"
+               , class ("btn btn-default " ++ (Maybe.withDefault "" customClass))
                ]
         )
         [ text textToShow ]
+
+
+type IconPosition
+    = IconLeft String
+    | IconRight String
+
+
+clickableTextIconButton : String -> IconPosition -> Attribute Msg -> Bool -> Html Msg
+clickableTextIconButton buttonText icon onClickHandler isDisabled =
+    let
+        btn markup =
+            button
+                (onClickHandler
+                    :: [ type_ "button"
+                       , class "btn btn-default"
+                       , disabled isDisabled
+                       ]
+                )
+                markup
+    in
+        case icon of
+            IconLeft iconClass ->
+                btn [ span [ class iconClass ] [], text (" " ++ buttonText) ]
+
+            IconRight iconClass ->
+                btn [ text (buttonText ++ " "), span [ class iconClass ] [] ]
 
 
 responsiveImg : String -> Html msg
@@ -186,13 +324,3 @@ responsiveEmbed16by9 embedSrc =
     in
         div [ responsiveEmbed ]
             [ iframe [ responsiveItem, src embedSrc ] [] ]
-
-
-xs12md6 : Attribute msg
-xs12md6 =
-    class "col-xs-12 col-md-6"
-
-
-row : Attribute msg
-row =
-    class "row"

@@ -2,9 +2,10 @@ module Apod.Update exposing (update)
 
 import Apod.Model exposing (Model, MediaType(..), decodePicOfDay)
 import Apod.Messages exposing (Msg(..))
-import Apod.DateHelper exposing (formatToYMD)
+import Apod.DateHelper exposing (formatToYMD, initDatePicker)
 import WebData.Http
 import WebData exposing (WebData(..))
+import DatePicker exposing (defaultSettings)
 
 
 {-| get your apiKey at https://api.nasa.gov/index.html#apply-for-an-api-key
@@ -17,7 +18,7 @@ import WebData exposing (WebData(..))
 -}
 apiKey : String
 apiKey =
-    "DEMO_KEY"
+    "SegrXvHUjcfYVpMck51MH02BiF0e8vcCaBxx7JTn"
 
 
 apodEndpoint : String
@@ -25,25 +26,71 @@ apodEndpoint =
     "https://api.nasa.gov/planetary/apod?api_key=" ++ apiKey ++ "&date="
 
 
+updateDatePicker : DatePicker.Msg -> Model -> ( Model, Cmd Msg )
+updateDatePicker msg model =
+    let
+        ( newDatePicker, datePickerFx, mDate ) =
+            DatePicker.update msg model.datepicker
+
+        ( m, cmd ) =
+            case mDate of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just date ->
+                    ( { model
+                        | apod = Loading
+                        , date = date
+                      }
+                    , fetchApod (formatToYMD date)
+                    )
+    in
+        { m | datepicker = newDatePicker }
+            ! [ Cmd.map ToDatePicker datePickerFx, cmd ]
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    let
-        fetch date =
-            ( { model | apod = Loading }, getApod date )
-    in
-        case msg of
-            FetchApod date ->
-                fetch (formatToYMD date)
+    case msg of
+        FetchApod date ->
+            let
+                ( datePicker, datePickerFx ) =
+                    initDatePicker (Just date) model.today
+            in
+                ( { model
+                    | apod = Loading
+                    , date = date
+                    , datepicker = datePicker
+                  }
+                , fetchApod (formatToYMD date)
+                )
 
-            HandleApod webData ->
-                { model | apod = webData } ! [ Cmd.none ]
+        HandleApod webData ->
+            { model
+                | apod = webData
+                , sidebarOpen = False
+            }
+                ! [ Cmd.none ]
 
-            Reload ->
-                fetch ""
+        Reload ->
+            ( { model
+                | sidebarOpen = False
+              }
+            , fetchApod (formatToYMD model.date)
+            )
+
+        ToDatePicker msg ->
+            updateDatePicker msg model
+
+        ToggleSidebar ->
+            { model
+                | sidebarOpen = not model.sidebarOpen
+            }
+                ! [ Cmd.none ]
 
 
-getApod : String -> Cmd Msg
-getApod date =
+fetchApod : String -> Cmd Msg
+fetchApod date =
     WebData.Http.getWithCache
         (apodEndpoint ++ date)
         HandleApod
