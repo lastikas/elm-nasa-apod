@@ -1,10 +1,10 @@
-.date-picker-holder {
+/*.date-picker-holder {
   position: fixed;
-}
+}*/
 
-.elm-datepicker--input {
+/*.elm-datepicker--input {
   width: 149px;
-}
+}*/
 
 .elm-datepicker--input:focus {
   outline: 0; }
@@ -12,7 +12,9 @@
 .elm-datepicker--picker {
   position: absolute;
   border: 1px solid #CCC;
-  z-index: 10; }
+  z-index: 10; 
+  top: 34px;
+}
 
 .elm-datepicker--picker-header,
 .elm-datepicker--weekdays {

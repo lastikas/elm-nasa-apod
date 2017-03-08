@@ -1,5 +1,33 @@
+/* navbar */
+.navbar-brand {
+  padding: 15px 0;
+}
+.navbar-header {
+   display: flex;
+   justify-content: space-between;
+}
+@media (min-width: 768px) {
+  .navbar>.container .navbar-brand, .navbar>.container-fluid .navbar-brand {
+    margin-left: 0px;
+    padding: 15px 10px;
+  }
+  .navbar-header button {
+    margin-right: 5px;
+  }
+}
+
+h1, .h1 {
+  font-size: 20px
+}
+time {
+  font-size: 15px;
+  padding-bottom: 10px;
+  display: block;
+  font-weight: 600;
+}
+
 body {
-  padding-top: 51px;  
+  padding-top: 61px;
 }
 .text-center {
   padding-top: 20px;
@@ -7,58 +35,51 @@ body {
 .col-xs-12 {
   background-color: #fff;
 }
-#sidebar {
-  height: 100%;
-  padding-right: 0;
-}
-#sidebar .nav {
-  width: 95%;
-}
-#sidebar li {
-  border:0 #f2f2f2 solid;
-  border-bottom-width:1px;
+.elm-datepicker--picker {
+  background: white;
 }
 
-.letter-highlighted::first-letter {
-  font-weight: bold;
+.navbar-form {
+  padding: 0px 5px;
+}
+.navbar-header .input-group-btn {
+  top: -1px;
 }
 
-.controls {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  margin: 10px 0;
+.loading-image {
+  width: 800px;
+  height: 647px;
 }
 
-/* collapsed sidebar styles */
-@media screen and (max-width: 767px) {
-  .row-offcanvas {
-    position: relative;
-    -webkit-transition: all 0.25s ease-out;
-    -moz-transition: all 0.25s ease-out;
-    transition: all 0.25s ease-out;
-  }
-  .row-offcanvas-right
-  .sidebar-offcanvas {
-    right: -61.6%;
+@media (max-width: 767px) {
+  body {
+    padding-top: 111px;  
   }
 
-  .row-offcanvas-left
-  .sidebar-offcanvas {
-    left: -61.6%;
+  .navbar-header {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 0 15px
   }
-  .row-offcanvas-right.active {
-    right: 61.6%;
+
+  .navbar-brand {
+    margin-right: 10px;
   }
-  .row-offcanvas-left.active {
-    left: 61.6%;
+
+  .nav-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-content: stretch;
+    width: 80%;
   }
-  .sidebar-offcanvas {
-    position: absolute;
-    top: 0;
-    width: 41.6%;
+
+  .nav-controls button {
+    width: 49%;
   }
-  #sidebar {
-    padding-top:0;
+
+  .navbar-form.navbar-left {
+    padding: 0 20px;
+    border: 0;
   }
 }

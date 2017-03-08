@@ -5,7 +5,7 @@ import Date.Extra.Duration as DateDuration
 import Date.Extra.Config.Config_en_au exposing (config)
 import Date.Extra.Format as Format exposing (format, formatUtc, isoMsecOffsetFormat)
 import Date.Extra.Compare as DateCompare exposing (Compare2(..))
-import DatePicker exposing (defaultSettings)
+import DatePicker exposing (defaultSettings, Settings)
 
 
 dayBefore : Date.Date -> Date.Date
@@ -64,9 +64,9 @@ dateFromString dateString =
 
 
 isDisabled : Date.Date -> Date.Date -> Bool
-isDisabled todayDate datePickerDate =
-    (DateCompare.is Before datePickerDate apodDateLimit)
-        || (DateCompare.is After datePickerDate todayDate)
+isDisabled today date =
+    (DateCompare.is Before date apodDateLimit)
+        || (DateCompare.is After date today)
 
 
 initDatePicker : Maybe Date.Date -> Date.Date -> ( DatePicker.DatePicker, Cmd DatePicker.Msg )
@@ -75,4 +75,5 @@ initDatePicker initialDate today =
         { defaultSettings
             | pickedDate = initialDate
             , isDisabled = (isDisabled today)
+            , inputClassList = [ ( "form-control", True ) ]
         }

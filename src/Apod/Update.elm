@@ -6,6 +6,9 @@ import Apod.DateHelper exposing (formatToYMD, initDatePicker)
 import WebData.Http
 import WebData exposing (WebData(..))
 import DatePicker exposing (defaultSettings)
+import Process
+import Time
+import Task
 
 
 {-| get your apiKey at https://api.nasa.gov/index.html#apply-for-an-api-key
@@ -18,12 +21,12 @@ import DatePicker exposing (defaultSettings)
 -}
 apiKey : String
 apiKey =
-    "SegrXvHUjcfYVpMck51MH02BiF0e8vcCaBxx7JTn"
+    "DEMO_KEY"
 
 
-apodEndpoint : String
-apodEndpoint =
-    "https://api.nasa.gov/planetary/apod?api_key=" ++ apiKey ++ "&date="
+apodEndpoint : String -> String
+apodEndpoint date =
+    "https://api.nasa.gov/planetary/apod?api_key=" ++ apiKey ++ "&date=" ++ date
 
 
 updateDatePicker : DatePicker.Msg -> Model -> ( Model, Cmd Msg )
@@ -49,9 +52,21 @@ updateDatePicker msg model =
             ! [ Cmd.map ToDatePicker datePickerFx, cmd ]
 
 
+delay : Time.Time -> msg -> Cmd msg
+delay time msg =
+    -- see http://stackoverflow.com/a/40610172
+    Process.sleep time
+        |> Task.andThen (always <| Task.succeed msg)
+        |> Task.perform identity
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        LoadApod date ->
+            { model | apod = Loading }
+                ! [ delay (Time.second * 2) <| FetchApod date ]
+
         FetchApod date ->
             let
                 ( datePicker, datePickerFx ) =
@@ -68,30 +83,19 @@ update msg model =
         HandleApod webData ->
             { model
                 | apod = webData
-                , sidebarOpen = False
             }
                 ! [ Cmd.none ]
 
         Reload ->
-            ( { model
-                | sidebarOpen = False
-              }
-            , fetchApod (formatToYMD model.date)
-            )
+            ( model, fetchApod (formatToYMD model.date) )
 
         ToDatePicker msg ->
             updateDatePicker msg model
-
-        ToggleSidebar ->
-            { model
-                | sidebarOpen = not model.sidebarOpen
-            }
-                ! [ Cmd.none ]
 
 
 fetchApod : String -> Cmd Msg
 fetchApod date =
     WebData.Http.getWithCache
-        (apodEndpoint ++ date)
+        (apodEndpoint date)
         HandleApod
         decodePicOfDay

@@ -13,7 +13,6 @@ type alias PicOfDay =
     , explanation : String
     , hdurl : Maybe String
     , media_type : MediaType
-    , service_version : String
     , title : String
     , url : String
     }
@@ -24,7 +23,6 @@ type alias Model =
     , datepicker : DatePicker.DatePicker
     , date : Date.Date
     , today : Date.Date
-    , sidebarOpen : Bool
     , loadingImageSrc : String
     , errorImageSrc : String
     }
@@ -33,6 +31,7 @@ type alias Model =
 type MediaType
     = Image
     | Video
+    | Spinner
 
 
 decodeMediaType : String -> Decode.Decoder MediaType
@@ -45,26 +44,21 @@ decodeMediaType mediaType =
 
 decodeDate : String -> Decode.Decoder Date.Date
 decodeDate dateString =
-    let
-        dateResult =
-            dateFromString dateString
-    in
-        case dateResult of
-            Ok date ->
-                Decode.succeed date
+    case (dateFromString dateString) of
+        Ok date ->
+            Decode.succeed date
 
-            Err error ->
-                Decode.fail error
+        Err error ->
+            Decode.fail error
 
 
 decodePicOfDay : Decode.Decoder PicOfDay
 decodePicOfDay =
-    Decode.map8 PicOfDay
+    Decode.map7 PicOfDay
         (Decode.maybe (Decode.field "copyright" Decode.string))
         (Decode.field "date" Decode.string |> Decode.andThen decodeDate)
         (Decode.field "explanation" Decode.string)
         (Decode.maybe (Decode.field "hdurl" Decode.string))
         (Decode.field "media_type" Decode.string |> Decode.andThen decodeMediaType)
-        (Decode.field "service_version" Decode.string)
         (Decode.field "title" Decode.string)
         (Decode.field "url" Decode.string)

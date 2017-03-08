@@ -39,6 +39,6 @@ init options =
             initDatePicker (Just initialDate) initialDate
 
         initialModel =
-            Model NotAsked datePicker initialDate initialDate False options.loadingImageSrc options.errorImageSrc
+            Model NotAsked datePicker initialDate initialDate options.loadingImageSrc options.errorImageSrc
     in
-        update (FetchApod initialDate) initialModel
+        update (LoadApod initialDate) initialModel

@@ -8,7 +8,7 @@ import DatePicker
 
 type Msg
     = FetchApod Date.Date
+    | LoadApod Date.Date
     | HandleApod (WebData PicOfDay)
     | Reload
     | ToDatePicker DatePicker.Msg
-    | ToggleSidebar
