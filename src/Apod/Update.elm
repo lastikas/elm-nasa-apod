@@ -9,6 +9,7 @@ import DatePicker exposing (defaultSettings)
 import Process
 import Time
 import Task
+import Date
 
 
 {-| get your apiKey at https://api.nasa.gov/index.html#apply-for-an-api-key
@@ -41,12 +42,7 @@ updateDatePicker msg model =
                     ( model, Cmd.none )
 
                 Just date ->
-                    ( { model
-                        | apod = Loading
-                        , date = date
-                      }
-                    , fetchApod (formatToYMD date)
-                    )
+                    delayFetch date model
     in
         { m | datepicker = newDatePicker }
             ! [ Cmd.map ToDatePicker datePickerFx, cmd ]
@@ -60,12 +56,21 @@ delay time msg =
         |> Task.perform identity
 
 
+delayFetch : Date.Date -> Model -> ( Model, Cmd Msg )
+delayFetch date model =
+    -- delay the fetching just so we can see the loading gif <| terrible, I know. but ¯\_(ツ)_/¯
+    { model
+        | apod = Loading
+        , date = date
+    }
+        ! [ delay (Time.second * 2) <| FetchApod date ]
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LoadApod date ->
-            { model | apod = Loading }
-                ! [ delay (Time.second * 2) <| FetchApod date ]
+            delayFetch date model
 
         FetchApod date ->
             let
