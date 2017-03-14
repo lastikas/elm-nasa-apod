@@ -46,11 +46,6 @@ body {
   top: -1px;
 }
 
-.loading-image {
-  width: 800px;
-  height: 647px;
-}
-
 @media (max-width: 767px) {
   body {
     padding-top: 111px;  
