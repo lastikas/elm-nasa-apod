@@ -92,7 +92,7 @@ update msg model =
                 ! [ Cmd.none ]
 
         Reload ->
-            ( model, fetchApod (formatToYMD model.date) )
+            delayFetch model.date model
 
         ToDatePicker msg ->
             updateDatePicker msg model
