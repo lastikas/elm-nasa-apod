@@ -1,0 +1,25 @@
+{
+  "name": "elm-nasa-apod",
+  "version": "0.0.1",
+  "description": "Elm study with Nasa's APOD Api",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "elm-app start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lastikas/elm-nasa-apod.git"
+  },
+  "author": "lastikas",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lastikas/elm-nasa-apod/issues"
+  },
+  "homepage": "https://github.com/lastikas/elm-nasa-apod#readme",
+  "devDependencies": {
+    "create-elm-app": "1.3.0"
+  }
+}
